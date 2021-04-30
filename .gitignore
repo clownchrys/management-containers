@@ -1,0 +1,11 @@
+# Common
+.idea
+.DS_Store
+
+# Vault
+vault/file/*
+vault/logs/*
+vault/seal_token.json
+
+# Jenkins
+jenkins/jenkins_home/*

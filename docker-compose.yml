@@ -1,0 +1,50 @@
+version: "3.7"
+
+services: 
+
+    jenkins:
+        image: deployer:jenkins
+        container_name: jenkins
+        build: 
+            context: ./jenkins
+        volumes: 
+            - ./jenkins/jenkins_home:/var/jenkins_home
+            - /var/run/docker.sock:/var/run/docker.sock # docker socket links
+            # Link the projects deployed to host with /projects directory in container
+            - /Users/chan/Environment/client/Workspace/projects/blinker:/projects/blinker
+            - /Users/chan/Environment/client/Workspace/jenkins_test:/projects/jenkins_test
+        environment: 
+            - TZ=Asia/Seoul
+        working_dir: /projects
+        ports: 
+        - 8181:8080
+        networks: 
+            - default
+        restart: always
+
+    vault:
+        image: deployer:vault
+        container_name: vault
+        build:
+            context: ./vault
+        command: server
+        volumes: 
+            - ./vault/logs:/vault/logs # 감사 로그를 저장할 디렉토리
+            - ./vault/file:/vault/file # 데이터를 저장할 디렉토리
+            - ./vault/config:/vault/config # 설정 디렉토리(HCL 또는 JSON 형태 파일) -> HCL(HashiCorp Configuration Language)약자로 개발사 설정 언어
+        environment: 
+            - VAULT_ADDR=http://127.0.0.1:8200
+        ports: 
+            - 8200:8200
+        cap_add: 
+            - IPC_LOCK
+        logging:
+            options: 
+                mode: non-blocking
+        networks: 
+            - default
+        restart: always
+
+
+networks: 
+    default:
